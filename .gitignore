@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.env
+.venv/
+venv/
+
+# Generated reports: keep only the committed sample PDF
+output/*
+!output/sample_daily_mis_report.pdf

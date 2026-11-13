@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Daily MIS Report - {{ plant }} - {{ report_date }}</title>
+  <style>{{ css | safe }}</style>
+</head>
+<body>
+<main class="page">
+
+  <header class="masthead">
+    <div>
+      <div class="eyebrow">Daily MIS Report &middot; Production</div>
+      <h1>{{ plant }}</h1>
+    </div>
+    <div class="dates">
+      <div><span>Report for</span><strong>{{ report_date }}</strong></div>
+      <div><span>Generated</span>{{ generated_at }}</div>
+    </div>
+  </header>
+
+  <section class="kpis">
+    {% for k in kpis %}
+    <div class="kpi">
+      <div class="kpi-label">{{ k.label }}</div>
+      <div class="kpi-value">{{ k.value }}</div>
+      <div class="kpi-sub">{{ k.sub }}</div>
+      <div class="kpi-delta {{ 'up' if k.delta.good else 'down' }}">{{ k.delta.value }} pts vs 7-day avg</div>
+    </div>
+    {% endfor %}
+  </section>
+
+  <section>
+    <h2>Yesterday's summary <small>shift-wise, planned vs completed vs pending</small></h2>
+    <table class="data">
+      <thead>
+        <tr>
+          <th class="l">Shift</th><th>Planned<br>batches</th><th>Completed</th><th>Pending</th>
+          <th>Planned<br>qty</th><th>Good<br>qty</th><th>Rejected</th>
+          <th>Completion</th><th>On-time</th><th>Yield</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in shifts %}
+        <tr class="{{ 'total' if s.shift == 'Total' else '' }}">
+          <td class="l">{{ 'Total' if s.shift == 'Total' else 'Shift ' ~ s.shift }}</td>
+          <td>{{ s.planned }}</td>
+          <td>{{ s.completed }}</td>
+          <td class="{{ 'warn' if s.pending else '' }}">{{ s.pending }}</td>
+          <td>{{ "{:,}".format(s.planned_qty) }}</td>
+          <td>{{ "{:,}".format(s.good_qty) }}</td>
+          <td>{{ "{:,}".format(s.rejected_qty) }}</td>
+          <td><span class="bar"><i style="width: {{ s.completion }}%"></i></span>{{ "%.0f"|format(s.completion) }}%</td>
+          <td>{{ "%.0f"|format(s.on_time) }}%</td>
+          <td>{{ "%.1f"|format(s.yield) }}%</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <div class="two-col">
+    <section>
+      <h2>Tomorrow's plan <small>{{ plan_date }}</small></h2>
+      <table class="data compact">
+        <thead>
+          <tr><th class="l">Shift</th><th>Batches</th><th>Planned qty</th><th>High priority</th><th class="l">Main parts</th></tr>
+        </thead>
+        <tbody>
+          {% for p in plan.rows %}
+          <tr class="{{ 'total' if p.shift == 'Total' else '' }}">
+            <td class="l">{{ 'Total' if p.shift == 'Total' else 'Shift ' ~ p.shift }}</td>
+            <td>{{ p.batches }}</td>
+            <td>{{ "{:,}".format(p.planned_qty) }}</td>
+            <td>{{ p.high }}</td>
+            <td class="l muted">{{ p.top_parts }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if plan.carry_over %}
+      <p class="note">+ {{ plan.carry_over }} pending batch{{ 'es' if plan.carry_over != 1 }} carried over from yesterday.</p>
+      {% endif %}
+    </section>
+
+    <section>
+      <h2>Last 7 days <small>completion, on-time and yield %</small></h2>
+      <img class="chart" src="data:image/png;base64,{{ chart }}" alt="7-day trend chart">
+    </section>
+  </div>
+
+  <section>
+    <h2>Deviations needing attention
+      <small>pending, &gt;{{ thresholds.late }} min late, or yield &lt;{{ "%.0f"|format(thresholds.yield) }}%
+      {% if deviation_total > deviations|length %}&middot; showing {{ deviations|length }} of {{ deviation_total }}{% endif %}</small>
+    </h2>
+    {% if deviations %}
+    <table class="data compact">
+      <thead>
+        <tr><th class="l">Batch</th><th>Shift</th><th class="l">Customer</th><th class="l">Part / Grade</th><th class="l">Issue</th><th class="l">Detail</th></tr>
+      </thead>
+      <tbody>
+        {% for d in deviations %}
+        <tr>
+          <td class="l mono">{{ d.batch }}</td>
+          <td>{{ d.shift }}</td>
+          <td class="l">{{ d.customer }}</td>
+          <td class="l">{{ d.part }} &middot; {{ d.grade }}</td>
+          <td class="l"><span class="tag tag-{{ d.issue|lower|replace(' ', '-') }}">{{ d.issue }}</span></td>
+          <td class="l">{{ d.detail }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="note">No deviations - all batches completed on time and within yield target.</p>
+    {% endif %}
+  </section>
+
+  <footer class="validation">
+    <div class="v-head">
+      <strong>Data validation</strong>
+      <span>{{ validation.rows_in }} rows read &middot; {{ validation.rows_out }} used &middot;
+        {{ validation.checks|length - validation.issues }}/{{ validation.checks|length }} checks passed</span>
+    </div>
+    <ul>
+      {% for c in validation.checks %}
+      <li class="{{ 'flag' if c.rows else 'pass' }}">
+        <b>{{ '!' if c.rows else '&#10003;'|safe }}</b>{{ c.name }}{% if c.rows %}: {{ c.rows }} row{{ 's' if c.rows != 1 }}, {{ c.action }}{% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    <div class="fine">Synthetic data for demonstration. Generated automatically by build_report.py.</div>
+  </footer>
+
+</main>
+</body>
+</html>

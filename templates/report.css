@@ -1,0 +1,176 @@
+/* Daily MIS Report - print-first stylesheet (A4 portrait) */
+:root {
+  --navy: #1B2A4A;
+  --navy-2: #2C3E66;
+  --teal: #14897F;
+  --teal-soft: #E3F3F1;
+  --amber: #B7791F;
+  --amber-soft: #FBF1DE;
+  --red: #B83A3A;
+  --red-soft: #FBE7E7;
+  --ink: #1F2937;
+  --muted: #6B7280;
+  --line: #E3E7EE;
+  --bg-soft: #F5F7FA;
+}
+
+@page { size: A4; margin: 0; }
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #fff;
+  color: var(--ink);
+  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 9.5pt;
+  line-height: 1.35;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.page {
+  width: auto;
+  min-height: 297mm;
+  padding: 0 12mm 9mm;
+  margin: 0 auto;
+}
+
+/* Masthead */
+.masthead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  background: var(--navy);
+  color: #fff;
+  margin: 0 -12mm 5mm;
+  padding: 7mm 12mm 5mm;
+  border-bottom: 4px solid var(--teal);
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 7.5pt;
+  color: #9FD8D2;
+  font-weight: 600;
+}
+.masthead h1 { margin: 1mm 0 0; font-size: 20pt; font-weight: 700; letter-spacing: -0.01em; }
+.dates { text-align: right; font-size: 8.5pt; color: #C8D1E3; }
+.dates span { display: inline-block; min-width: 18mm; margin-right: 2mm; color: #8E9BB8; }
+.dates strong { color: #fff; font-size: 10pt; }
+
+/* KPI cards */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3.5mm;
+  margin-bottom: 5mm;
+}
+.kpi {
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--teal);
+  border-radius: 2mm;
+  padding: 3mm 3.5mm;
+  background: #fff;
+}
+.kpi:nth-child(4) { border-top-color: var(--navy-2); }
+.kpi-label { font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; }
+.kpi-value { font-size: 18pt; font-weight: 700; color: var(--navy); margin: 0.5mm 0; font-variant-numeric: tabular-nums; }
+.kpi-sub { font-size: 7.5pt; color: var(--muted); }
+.kpi-delta { margin-top: 1.5mm; font-size: 7.5pt; font-weight: 600; }
+.kpi-delta.up { color: var(--teal); }
+.kpi-delta.down { color: var(--red); }
+
+/* Sections */
+section { margin-bottom: 4.5mm; break-inside: avoid; }
+h2 {
+  font-size: 10.5pt;
+  color: var(--navy);
+  margin: 0 0 2mm;
+  padding-bottom: 1mm;
+  border-bottom: 1.5px solid var(--navy);
+}
+h2 small { font-weight: 400; font-size: 8pt; color: var(--muted); margin-left: 2mm; }
+
+.two-col { display: grid; grid-template-columns: 1.05fr 1fr; gap: 6mm; }
+.two-col section { min-width: 0; }
+
+/* Tables */
+table.data { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+table.data th {
+  background: var(--bg-soft);
+  color: var(--navy-2);
+  font-size: 7.5pt;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 1.6mm 2mm;
+  text-align: right;
+  line-height: 1.2;
+  border-bottom: 1px solid var(--line);
+}
+table.data td {
+  padding: 1.5mm 2mm;
+  text-align: right;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+table.data .l { text-align: left; }
+table.data tr.total td { font-weight: 700; color: var(--navy); background: var(--teal-soft); border-bottom: none; }
+table.compact td { padding: 1.2mm 2mm; font-size: 8.5pt; }
+td.warn { color: var(--amber); font-weight: 700; }
+td.muted { color: var(--muted); }
+td.mono { font-family: Consolas, "Courier New", monospace; font-size: 8pt; }
+
+.bar {
+  display: inline-block;
+  width: 12mm;
+  height: 1.8mm;
+  background: var(--line);
+  border-radius: 1mm;
+  margin-right: 1.5mm;
+  vertical-align: middle;
+  overflow: hidden;
+}
+.bar i { display: block; height: 100%; background: var(--teal); }
+
+.tag {
+  display: inline-block;
+  padding: 0.3mm 2mm;
+  border-radius: 3mm;
+  font-size: 7.5pt;
+  font-weight: 600;
+}
+.tag-pending { background: var(--red-soft); color: var(--red); }
+.tag-late { background: var(--amber-soft); color: var(--amber); }
+.tag-low-yield { background: #E8ECF5; color: var(--navy-2); }
+
+.note { margin: 1.5mm 0 0; font-size: 8pt; color: var(--amber); font-weight: 600; }
+.chart { width: 100%; display: block; }
+
+/* Validation footer */
+.validation {
+  margin-top: 5mm;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--teal);
+  background: var(--bg-soft);
+  border-radius: 1.5mm;
+  padding: 2.5mm 4mm;
+  font-size: 8pt;
+  break-inside: avoid;
+}
+.v-head { display: flex; justify-content: space-between; margin-bottom: 1.5mm; color: var(--navy); }
+.v-head span { color: var(--muted); }
+.validation ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6mm 6mm;
+}
+.validation li b { display: inline-block; width: 4mm; }
+.validation li.pass b { color: var(--teal); }
+.validation li.flag { color: var(--amber); }
+.validation .fine { margin-top: 1.5mm; color: var(--muted); font-size: 7pt; }
