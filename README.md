@@ -1,66 +1,31 @@
 # Daily MIS Report Automation
 
-**Turns a day's raw production data into a checked, print-ready one-page management report in under a minute.**
+A Python script that takes one day's production data and makes a one-page daily MIS report as a PDF. It checks the data first, so wrong rows don't end up in the numbers.
 
-![Daily MIS report preview](docs/report_preview.png)
+The data here is dummy data. I built similar daily reports for manufacturing customers at work; I can't share those, so I rebuilt the idea with made-up data. Plant, customer, grade and part names are all made up.
 
-[View the sample PDF report](output/sample_daily_mis_report.pdf)
+## Sample output
 
----
+![Daily MIS report](docs/report_preview.png)
 
-## Problem → What I built → Result
+Sample report generated from the dummy data. Full PDF: [output/sample_daily_mis_report.pdf](output/sample_daily_mis_report.pdf)
 
-**The problem**
-Every morning, plant managers need to know: what did we plan yesterday, what actually got done, what is still pending, and what needs attention today. Putting this together by hand from shift logs and spreadsheets typically takes **2–3 hours a day**. The format changes depending on who prepares it, and copy-paste mistakes (duplicate rows, typos, wrong dates) slip into the numbers.
+## Why I made this
 
-**What I built**
-A Python script that reads the production data and produces the full daily report automatically:
+Every morning plant managers want to know what was planned yesterday, what got done, what is pending and what needs attention today. Making this by hand from shift logs and sheets usually takes 2-3 hours a day. The format changes depending on who makes it, and copy-paste mistakes like duplicate rows or wrong dates get into the numbers.
 
-- **KPI cards**: completion %, on-time %, yield % and rejections, each compared with the previous 7-day average
-- **Yesterday's summary**: planned vs completed vs pending, broken down by Shift A / B / C
-- **Tomorrow's plan**: batches and quantities by shift, high-priority jobs and work carried over
-- **Deviations needing attention**: pending, late or low-yield batches, so problems are seen first
-- **7-day trend chart**: shows whether performance is getting better or worse
-- **Data validation before the report is built**: checks for missing values, duplicates, negative quantities, dates outside the reporting window and inconsistent records. Bad rows are fixed or excluded, and the results are printed and shown in the report footer so readers know the numbers have been checked.
+## What it does
 
-**The result**
-- Report preparation goes from **2–3 hours of manual work to under a minute**
-- **Same format every day**, ready to print or email as PDF
-- **Built-in data checks**, so errors are caught before they reach management
-- Easy to adapt to new KPIs, plants or thresholds
+- KPI cards for completion %, on-time %, yield % and rejections, compared with the last 7-day average
+- Yesterday's summary: planned vs completed vs pending, by Shift A / B / C
+- Tomorrow's plan: batches and quantity by shift, high priority jobs and carried over work
+- A list of pending, late or low-yield batches that need attention
+- A 7-day trend chart
+- Data checks before the report is made: missing values, duplicates, negative quantities, dates outside the report window and records that don't add up. Bad rows are fixed or left out, and the check results are printed and shown at the bottom of the report.
 
-> Based on reporting automation I built for manufacturing clients in my current role. This version uses synthetic data so it can be shared publicly. All plant, customer, grade and part names are fictional.
+With this the report takes under a minute instead of 2-3 hours, and it looks the same every day.
 
-## Skills shown
-
-| Area | What is used |
-|---|---|
-| Python | End-to-end automation script, command-line options |
-| pandas | Cleaning, aggregation, shift-wise and daily KPIs, 7-day comparisons |
-| Data validation | Missing values, duplicates, negative quantities, date-range and logic checks |
-| Jinja2 + HTML/CSS | Report template with a consistent, print-ready A4 layout |
-| matplotlib | Trend chart embedded in the report |
-| Report automation | Headless Chrome export to PDF and PNG, no manual steps |
-
-## What's in the repository
-
-```
-daily-mis-report-automation/
-├── generate_sample_data.py     # creates 30 days of synthetic production data (fixed seed)
-├── build_report.py             # validation, KPIs, chart, HTML render, PDF/PNG export
-├── templates/
-│   ├── report.html             # Jinja2 report template
-│   └── report.css              # print stylesheet (A4)
-├── sample_data/
-│   ├── production_log.csv      # batch-level actuals, 3 shifts per day
-│   └── production_plan.csv     # next day's plan
-├── output/
-│   └── sample_daily_mis_report.pdf
-└── docs/
-    └── report_preview.png
-```
-
-The sample data deliberately includes a few common data-entry problems (a duplicate batch, a missing customer, a negative quantity and a date outside the window) so the validation step can be seen working:
+The sample data has a few mistakes put in on purpose (a duplicate batch, a missing customer, a negative quantity and a date outside the window), so you can see the checks working:
 
 ```
 Data validation summary
@@ -78,19 +43,21 @@ Data validation summary
 
 ## How to run
 
-Requires Python 3.10+ and Google Chrome (used to export the PDF).
+Needs Python 3.10+ and Google Chrome (for the PDF).
 
 ```bash
 pip install -r requirements.txt
 python generate_sample_data.py
 python build_report.py
+python build_report.py --date 2026-11-10   # report for a particular day
 ```
 
-The report is written to `output/` as HTML and PDF. Optional flags:
+The report is saved in `output/` as HTML and PDF.
 
-```bash
-python build_report.py --date 2026-11-10                     # report for a specific day
-python build_report.py --name sample_daily_mis_report --png docs/report_preview.png
-```
+## Notes
 
-Thresholds (on-time grace period, late flag, yield target) are set at the top of `build_report.py`.
+- `generate_sample_data.py` makes 30 days of dummy production data with a fixed seed.
+- `build_report.py` does the checks, KPIs, chart and the PDF.
+- The report layout is in `templates/` (Jinja2 HTML and CSS, A4 size).
+- Limits like the on-time grace period, late flag and yield target are at the top of `build_report.py`.
+- Made with Python, pandas, Jinja2, matplotlib and headless Chrome.
